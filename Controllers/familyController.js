@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const { performance } = require("perf_hooks");
 const Counter = require("../Models/TasbeehCounter");
+const { ne } = require("@faker-js/faker");
 
 const signup = async (req, res) => {
   const { email, password } = req.body;
@@ -952,8 +953,11 @@ const updatedGetFamilyTreeById = async (req, res) => {
     // Fetch father's siblings
     if (father) {
       const fatherSiblings = await Person.find({
-        father: father.father,
-        mother: father.mother,
+        father: {
+          $eq: father.father,
+          $ne: null,
+        },
+        mother: { $eq: father.mother, $ne: null },
         _id: { $ne: father._id }, // Exclude father from siblings
         status: "approved", // Publicly accessible
       }).lean();
@@ -971,8 +975,11 @@ const updatedGetFamilyTreeById = async (req, res) => {
     // Fetch mother's siblings
     if (mother) {
       const motherSiblings = await Person.find({
-        father: mother.father,
-        mother: mother.mother,
+        father: {
+          $eq: mother.father,
+          $ne: null,
+        },
+        mother: { $eq: mother.mother, $ne: null },
         _id: { $ne: mother._id }, // Exclude mother from siblings
         status: "approved", // Publicly accessible
       }).lean();
@@ -1044,9 +1051,6 @@ const updatedGetFamilyTreeById = async (req, res) => {
 //   }
 // };
 
-
-
-
 // const getAncestorChain = async (req, res) => {
 //   try {
 //     const personId = req.params.id;
@@ -1104,16 +1108,18 @@ const getAncestorChain = async (req, res) => {
       if (!person) return [];
 
       // Determine which parent to fetch ancestors from based on the side
-      const parentId = side === 'father' ? person.father : person.mother;
+      const parentId = side === "father" ? person.father : person.mother;
 
       // Recursively fetch ancestors of the parent if they exist
-      const ancestorChain = parentId ? await fetchAncestors(parentId, side) : [];
+      const ancestorChain = parentId
+        ? await fetchAncestors(parentId, side)
+        : [];
 
       // Add current person info (including gender) to the chain
-      ancestorChain.push({ 
-        name: person.name, 
+      ancestorChain.push({
+        name: person.name,
         id: person._id,
-        gender: person.gender // Assuming the 'gender' field exists in your Person model
+        gender: person.gender, // Assuming the 'gender' field exists in your Person model
       });
       return ancestorChain;
     };
@@ -1127,14 +1133,14 @@ const getAncestorChain = async (req, res) => {
     }
 
     // Get the complete ancestor chains for both father and mother sides
-    const fatherSideChain = await fetchAncestors(personId, 'father');
-    const motherSideChain = await fetchAncestors(personId, 'mother');
+    const fatherSideChain = await fetchAncestors(personId, "father");
+    const motherSideChain = await fetchAncestors(personId, "mother");
 
     // Create a Set to avoid duplicate IDs in the final response
     const uniqueIds = new Set();
 
     // Filter out duplicates from father side
-    const uniqueFatherSide = fatherSideChain.filter(ancestor => {
+    const uniqueFatherSide = fatherSideChain.filter((ancestor) => {
       if (!uniqueIds.has(ancestor.id)) {
         uniqueIds.add(ancestor.id);
         return true;
@@ -1143,7 +1149,7 @@ const getAncestorChain = async (req, res) => {
     });
 
     // Filter out duplicates from mother side
-    const uniqueMotherSide = motherSideChain.filter(ancestor => {
+    const uniqueMotherSide = motherSideChain.filter((ancestor) => {
       if (!uniqueIds.has(ancestor.id)) {
         uniqueIds.add(ancestor.id);
         return true;
@@ -1155,14 +1161,18 @@ const getAncestorChain = async (req, res) => {
     const childrenInfo = person.children.map((child) => ({
       name: child.name,
       id: child._id,
-      gender: child.gender // Assuming the 'gender' field exists in your Child model
+      gender: child.gender, // Assuming the 'gender' field exists in your Child model
     }));
 
     // Combine all data into a structured response
     const fullChain = {
       fatherSide: uniqueFatherSide,
       motherSide: uniqueMotherSide,
-      currentPerson: { name: person.name, id: person._id, gender: person.gender }, // Include gender of the current person
+      currentPerson: {
+        name: person.name,
+        id: person._id,
+        gender: person.gender,
+      }, // Include gender of the current person
       children: childrenInfo,
     };
 
@@ -1173,7 +1183,6 @@ const getAncestorChain = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 const addPerson = async (req, res) => {
   try {
@@ -2468,7 +2477,6 @@ const openSearch = async (req, res) => {
   }
 };
 
-
 const adminGetFamilyTreeById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -2561,5 +2569,5 @@ module.exports = {
   openSearch,
   updatedGetFamilyTreeById,
   getAncestorChain,
-  adminGetFamilyTreeById
+  adminGetFamilyTreeById,
 };
