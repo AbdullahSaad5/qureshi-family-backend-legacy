@@ -1,12 +1,12 @@
-# Backend Qureshi Family
+# Qureshi Family Backend Legacy
 
 <!-- repo-hygiene: reposhuttle-standard -->
 
-**Backend API for the Qureshi family archive and family-tree application.**
+**Outdated JavaScript backend for the Qureshi family archive; superseded by shajrah-backend.**
 
 ## Overview
 
-Backend API for the Qureshi family archive and family-tree application.
+Outdated JavaScript backend for the Qureshi family archive; superseded by shajrah-backend.
 
 This README records the repository's purpose, verified local workflow, major technology choices, and maintenance status so the project can be understood without first reverse-engineering the source tree.
 
@@ -15,6 +15,7 @@ This README records the repository's purpose, verified local workflow, major tec
 - HTTP API and middleware architecture built with Express
 - MongoDB persistence modeled with Mongoose
 - Authentication and protected application workflows
+- Preserved earlier implementation for historical reference
 
 ## Tech stack
 
@@ -55,7 +56,7 @@ helpers/  # project files
 
 ## Repository status
 
-This repository is maintained as a project reference and portfolio artifact.
+This repository preserves an earlier implementation and is not the canonical active project.
 
 ## Development
 
